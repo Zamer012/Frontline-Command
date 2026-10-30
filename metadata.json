@@ -1,0 +1,6 @@
+{
+  "name": "Frontline Command: Tactical Warfare",
+  "description": "Turn-based grand strategy and tactical combat simulator featuring deep armor, artillery, and aerial maneuvers with adaptive AI.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
