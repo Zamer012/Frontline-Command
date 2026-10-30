@@ -860,7 +860,51 @@ export class TacticalEngine {
     }
 
     if (isHq) {
-      this.eliminateFaction(was);
+      if (was === 0 && !this.ctrl[0]) {
+        // Player HQ captured
+        if (this.isDefendRequired()) {
+          this.handleDefeat('DEFENSE FAILED: Your HQ Fortress was captured and seized!');
+          return;
+        } else {
+          this.note += ' ALLIED HQ CAPTURED! Command lost, but frontline forces fight on!';
+          this.addFloatingText(b, 'HQ SEIZED - FIGHT ON!', '#ef4444');
+          this.checkPlayerWipeout();
+        }
+      } else {
+        this.eliminateFaction(was);
+      }
+    } else if (was === 0 && !this.ctrl[0]) {
+      // Outpost or barracks captured from player - check if any assets remain
+      this.checkPlayerWipeout();
+    }
+  }
+
+  public isDefendRequired(): boolean {
+    if (this.activeMission) {
+      if (
+        this.activeMission.objectiveType === 'defend_and_attack' ||
+        this.activeMission.objectiveType === 'holdout'
+      ) {
+        return true;
+      }
+      if (this.activeMission.defendTargetCoord || this.U.some((u) => u.o === 0 && u.isDefendTarget)) {
+        return true;
+      }
+      return false;
+    }
+    return false;
+  }
+
+  public getPlayerAssetCount(): number {
+    return this.U.filter((x) => x.o === 0 && x.hp > 0).length;
+  }
+
+  public checkPlayerWipeout(): void {
+    if (this.over) return;
+    if (this.ctrl[0]) return; // AI simulation
+    if (this.getPlayerAssetCount() === 0) {
+      this.alive[0] = false;
+      this.handleDefeat('TOTAL DEFEAT: All friendly units and structures have been eliminated or captured!');
     }
   }
 
@@ -904,12 +948,32 @@ export class TacticalEngine {
       }
 
       if (v.t === 'H') {
-        this.eliminateFaction(v.o);
+        if (v.o === 0 && !this.ctrl[0]) {
+          // Player HQ destroyed
+          if (this.isDefendRequired()) {
+            this.handleDefeat('DEFENSE FAILED: Your HQ Fortress has fallen!');
+            return;
+          } else {
+            this.note += ' ALLIED HQ DESTROYED! Base lost, but operational units fight on to the last stand!';
+            this.addFloatingText(v, 'HQ LOST - FIGHT ON!', '#ef4444');
+            this.checkPlayerWipeout();
+          }
+        } else {
+          this.eliminateFaction(v.o);
+        }
+      } else if (v.o === 0 && !this.ctrl[0]) {
+        // Player unit or non-HQ building destroyed: check if total wipeout occurred
+        this.checkPlayerWipeout();
       }
     }
   }
 
   public eliminateFaction(o: number): void {
+    if (o === 0 && !this.ctrl[0] && !this.isDefendRequired() && this.getPlayerAssetCount() > 0) {
+      // Do not eliminate human player in non-defend modes while assets remain
+      return;
+    }
+
     this.alive[o] = false;
     this.note += ` Faction ${o} eliminated!`;
     this.U.filter((e) => e.o === o && !this.getBlueprint(e.t).bl).forEach((e) =>
@@ -926,7 +990,11 @@ export class TacticalEngine {
     if (this.sel && this.sel.o === o) this.sel = null;
 
     if (o === 0) {
-      this.handleDefeat('COMMAND OVERRUN: Your HQ Fortress has fallen!');
+      this.handleDefeat(
+        this.isDefendRequired()
+          ? 'DEFENSE FAILED: Your HQ Fortress has fallen!'
+          : 'TOTAL DEFEAT: All friendly units and structures have been eliminated or captured!'
+      );
       return;
     }
 

@@ -147,10 +147,10 @@ export const CampaignView: React.FC<CampaignViewProps> = ({
           <div className="p-3 bg-[#0a0d0f] rounded-xl border border-[#1d252b] space-y-1.5">
             <div className="flex items-center gap-2 text-emerald-400 font-bold font-mono">
               <span className="w-5 h-5 rounded-md bg-emerald-500/20 flex items-center justify-center text-xs">3</span>
-              <span>Win Mits Currency</span>
+              <span>Objectives & Rules</span>
             </div>
             <p className="text-slate-400 leading-relaxed text-[11px]">
-              Destroy the hostile Command HQ to win the mission. Earn <strong className="text-amber-400">Mits</strong> to unlock 18+ heavy tanks, gunships, and artillery in the Armory!
+              In <strong className="text-blue-300">Defend & Holdout</strong>, protect your HQ Fortress at all costs. In <strong className="text-cyan-300">Assault & Conquest</strong>, you fight until your very last unit and structure falls! Earn <strong className="text-amber-400">Mits</strong> on victory.
             </p>
           </div>
         </div>

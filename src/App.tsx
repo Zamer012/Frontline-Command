@@ -589,6 +589,11 @@ export default function App() {
                         </span>
                       </div>
                     )}
+                    {!engine.isDefendRequired() && !engine.U.some((u) => u.t === 'H' && u.o === 0) && (
+                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 animate-pulse">
+                        HQ FALLEN · LAST STAND ({engine.getPlayerAssetCount()} Assets)
+                      </span>
+                    )}
                     <div className="flex items-center gap-1 text-slate-400">
                       <span>Turn:</span>
                       <span className="text-slate-200 font-bold">{engine.turn}</span>
@@ -598,7 +603,11 @@ export default function App() {
               ) : (
                 <div className="p-3 bg-[#13191d] border border-[#232c32] rounded-xl flex items-center justify-between gap-3 text-xs font-mono shadow-md">
                   <div className="flex items-center gap-2.5 min-w-0">
-                    <div className="w-7 h-7 rounded-lg bg-amber-500/15 border border-amber-500/30 flex items-center justify-center shrink-0 text-amber-400 font-bold">
+                    <div className={`w-7 h-7 rounded-lg border flex items-center justify-center shrink-0 font-bold ${
+                      !engine.U.some((u) => u.t === 'H' && u.o === 0) && !engine.ctrl[0]
+                        ? 'bg-rose-500/20 border-rose-500/40 text-rose-300 animate-pulse'
+                        : 'bg-amber-500/15 border-amber-500/30 text-amber-400'
+                    }`}>
                       HQ
                     </div>
                     <div className="truncate">
@@ -606,6 +615,8 @@ export default function App() {
                       <span className="text-slate-200 font-medium text-xs">
                         {engine.ctrl.every((c) => c)
                           ? 'Autonomous War in Progress: Watch the superpowers trade artillery and armor rounds.'
+                          : !engine.U.some((u) => u.t === 'H' && u.o === 0) && !engine.ctrl[0]
+                          ? `Last Stand in Effect: Your HQ was lost, but all ${engine.getPlayerAssetCount()} remaining units and installations fight on! Destroy the enemy to win!`
                           : engine.ph === 'setup'
                           ? 'Deployment Phase: Tap "Auto-Deploy & Ready" for instant combat, or recruit units on the right.'
                           : engine.ctrl[engine.cur]
